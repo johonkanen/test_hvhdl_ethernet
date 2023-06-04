@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efxpt:design_db name="titanium_evm" device_def="Ti60F225" location="C:\Users\jaarh\mycodeprojects\test_hvhdl_ethernet\titanium_evaluation_kit" version="2022.2.322.5.7" db_version="20222999" last_change_date="Sun Jun  4 19:57:30 2023" xmlns:efxpt="http://www.efinixinc.com/peri_design_db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/peri_design_db peri_design_db.xsd ">
+<efxpt:design_db name="titanium_evm" device_def="Ti60F225" location="C:\Users\jaarh\mycodeprojects\test_hvhdl_ethernet\titanium_evaluation_kit" version="2022.2.322.5.7" db_version="20222999" last_change_date="Sun Jun  4 21:11:24 2023" xmlns:efxpt="http://www.efinixinc.com/peri_design_db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/peri_design_db peri_design_db.xsd ">
     <efxpt:device_info>
         <efxpt:iobank_info>
             <efxpt:iobank name="1A" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="1A_MODE_SEL"/>
@@ -111,6 +111,24 @@
         <efxpt:comp_gpio name="rgmii_rx_input_clock" gpio_def="GPIOB_P_00" mode="input" bus_name="" io_standard="1.8 V LVCMOS">
             <efxpt:input_config name="rgmii_rx_input_clock" name_ddio_lo="" conn_type="pll_clkin" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="rgmii_rx_input_clock_PULL_UP_ENA" dyn_delay_en_name="rgmii_rx_input_clock_DLY_ENA" dyn_delay_reset_name="rgmii_rx_input_clock_DLY_RST" dyn_delay_ctrl_name="rgmii_rx_input_clock_DLY_CTRL" clkmux_buf_name=""/>
         </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="rgmii_tx_and_ctl[0]" gpio_def="GPIOB_N_03" mode="output" bus_name="rgmii_tx_and_ctl" io_standard="1.8 V LVCMOS">
+            <efxpt:output_config name="rgmii_tx_and_ctl_HI[0]" name_ddio_lo="rgmii_tx_and_ctl_LO[0]" register_option="register" clock_name="rgmii_rx_pll_clock" is_clock_inverted="false" is_slew_rate="true" tied_option="none" ddio_type="resync" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="rgmii_tx_and_ctl[1]" gpio_def="GPIOB_P_03" mode="output" bus_name="rgmii_tx_and_ctl" io_standard="1.8 V LVCMOS">
+            <efxpt:output_config name="rgmii_tx_and_ctl_HI[1]" name_ddio_lo="rgmii_tx_and_ctl_LO[1]" register_option="register" clock_name="rgmii_rx_pll_clock" is_clock_inverted="false" is_slew_rate="true" tied_option="none" ddio_type="resync" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="rgmii_tx_and_ctl[2]" gpio_def="GPIOB_N_01" mode="output" bus_name="rgmii_tx_and_ctl" io_standard="1.8 V LVCMOS">
+            <efxpt:output_config name="rgmii_tx_and_ctl_HI[2]" name_ddio_lo="rgmii_tx_and_ctl_LO[2]" register_option="register" clock_name="rgmii_rx_pll_clock" is_clock_inverted="false" is_slew_rate="true" tied_option="none" ddio_type="resync" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="rgmii_tx_and_ctl[3]" gpio_def="GPIOB_P_01" mode="output" bus_name="rgmii_tx_and_ctl" io_standard="1.8 V LVCMOS">
+            <efxpt:output_config name="rgmii_tx_and_ctl_HI[3]" name_ddio_lo="rgmii_tx_and_ctl_LO[3]" register_option="register" clock_name="rgmii_rx_pll_clock" is_clock_inverted="false" is_slew_rate="true" tied_option="none" ddio_type="resync" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="rgmii_tx_and_ctl[4]" gpio_def="GPIOB_P_02" mode="output" bus_name="rgmii_tx_and_ctl" io_standard="1.8 V LVCMOS">
+            <efxpt:output_config name="rgmii_tx_and_ctl_HI[4]" name_ddio_lo="rgmii_tx_and_ctl_LO[4]" register_option="register" clock_name="rgmii_rx_pll_clock" is_clock_inverted="false" is_slew_rate="true" tied_option="none" ddio_type="resync" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="rgmii_tx_clock" gpio_def="GPIOB_P_04" mode="clkout" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:output_config name="" name_ddio_lo="" register_option="none" clock_name="enet_tx_clock" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
+        </efxpt:comp_gpio>
         <efxpt:comp_gpio name="uart_rx" gpio_def="GPIOL_01" mode="input" bus_name="" io_standard="3.3 V LVCMOS">
             <efxpt:input_config name="uart_rx" name_ddio_lo="" conn_type="normal" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="uart_rx_PULL_UP_ENA" dyn_delay_en_name="uart_rx_DLY_ENA" dyn_delay_reset_name="uart_rx_DLY_RST" dyn_delay_ctrl_name="uart_rx_DLY_CTRL" clkmux_buf_name=""/>
         </efxpt:comp_gpio>
@@ -119,6 +137,7 @@
         </efxpt:comp_gpio>
         <efxpt:global_unused_config state="input with weak pullup"/>
         <efxpt:bus name="rgmii_rx_and_ctl" mode="input" msb="4" lsb="0"/>
+        <efxpt:bus name="rgmii_tx_and_ctl" mode="output" msb="4" lsb="0"/>
     </efxpt:gpio_info>
     <efxpt:pll_info>
         <efxpt:pll name="main_clock" pll_def="PLL_TL0" ref_clock_name="" ref_clock_freq="25.0000" multiplier="4" pre_divider="1" post_divider="2" reset_name="" locked_name="" is_ipfrz="false" is_bypass_lock="true">
@@ -137,7 +156,7 @@
             </efxpt:comp_output_clock>
             <efxpt:comp_prop is_outclk_inverted="false"/>
         </efxpt:pll>
-        <efxpt:pll name="enet_pll" pll_def="PLL_BL0" ref_clock_name="" ref_clock_freq="125.0000" multiplier="1" pre_divider="1" post_divider="1" reset_name="" locked_name="" is_ipfrz="false" is_bypass_lock="true">
+        <efxpt:pll name="enet_pll" pll_def="PLL_BL0" ref_clock_name="" ref_clock_freq="125.0000" multiplier="1" pre_divider="1" post_divider="2" reset_name="" locked_name="" is_ipfrz="false" is_bypass_lock="true">
             <efxpt:adv_prop ref_clock_mode="external" ref_clock1_name="" ext_ref_clock_id="3" clksel_name="" feedback_clock_name="rgmii_rx_pll_clock" feedback_mode="local"/>
             <efxpt:gen_pin>
                 <efxpt:pin name="" type_name="SHIFT_ENA" is_bus="false"/>
@@ -145,7 +164,10 @@
                 <efxpt:pin name="" type_name="SHIFT" is_bus="true"/>
                 <efxpt:pin name="" type_name="SHIFT_SEL" is_bus="true"/>
             </efxpt:gen_pin>
-            <efxpt:comp_output_clock name="rgmii_rx_pll_clock" number="0" out_divider="24" is_dyn_phase="false" phase_setting="2">
+            <efxpt:comp_output_clock name="rgmii_rx_pll_clock" number="0" out_divider="12" is_dyn_phase="false" phase_setting="1">
+                <efxpt:gen_pin/>
+            </efxpt:comp_output_clock>
+            <efxpt:comp_output_clock name="enet_tx_clock" number="1" out_divider="12" is_dyn_phase="false" phase_setting="6">
                 <efxpt:gen_pin/>
             </efxpt:comp_output_clock>
             <efxpt:comp_prop is_outclk_inverted="false"/>

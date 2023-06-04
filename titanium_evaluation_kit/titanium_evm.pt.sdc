@@ -50,3 +50,5 @@ set_input_delay -clock rgmii_rx_pll_clock -reference_pin [get_ports {rgmii_rx_pl
 # rgmii_rx_and_ctl[2] -clock rgmii_rx_pll_clock -reference_pin [get_ports {rgmii_rx_pll_clock~CLKOUT~82~1}]
 # rgmii_rx_and_ctl[3] -clock rgmii_rx_pll_clock -reference_pin [get_ports {rgmii_rx_pll_clock~CLKOUT~81~1}]
 # rgmii_rx_and_ctl[4] -clock rgmii_rx_pll_clock -reference_pin [get_ports {rgmii_rx_pll_clock~CLKOUT~93~1}]
+
+set_clock_groups -exclusive -group { rgmii_rx_pll_clock }

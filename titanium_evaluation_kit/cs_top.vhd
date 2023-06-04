@@ -18,7 +18,11 @@ entity top is
 
         rgmii_rx_pll_clock  : in std_logic;
         rgmii_rx_and_ctl_HI : in std_logic_vector(4 downto 0);
-        rgmii_rx_and_ctl_LO : in std_logic_vector(4 downto 0)
+        rgmii_rx_and_ctl_LO : in std_logic_vector(4 downto 0);
+
+        -- rgmii_tx_pll_clock  : out std_logic;
+        rgmii_tx_and_ctl_HI : out std_logic_vector(4 downto 0);
+        rgmii_tx_and_ctl_LO : out std_logic_vector(4 downto 0)
     );
 end entity top;
 
@@ -45,6 +49,7 @@ architecture rtl of top is
     signal fast_counter : natural range 0 to 2**16-1 := 0;
     signal clock_register : natural range 0 to 2**16-1 := 0;
 
+    signal output_shift_register : std_logic_vector(15 downto 0) := x"acdc";
 
 begin
 
@@ -94,14 +99,14 @@ begin
         if rising_edge(rgmii_rx_pll_clock) then
             testi3 <= 10e3;
             rgmii_data := 
-                rgmii_rx_and_ctl_LO(3) &
-                rgmii_rx_and_ctl_LO(2) &
-                rgmii_rx_and_ctl_LO(1) &
-                rgmii_rx_and_ctl_LO(0) &
                 rgmii_rx_and_ctl_HI(3) &
                 rgmii_rx_and_ctl_HI(2) &
                 rgmii_rx_and_ctl_HI(1) &
-                rgmii_rx_and_ctl_HI(0);
+                rgmii_rx_and_ctl_HI(0) &
+                rgmii_rx_and_ctl_LO(3) &
+                rgmii_rx_and_ctl_LO(2) &
+                rgmii_rx_and_ctl_LO(1) &
+                rgmii_rx_and_ctl_LO(0);
 
             fast_counter <= fast_counter + 1;
             toggle <= toggle(1 downto 0) & request_counter_reset;
@@ -121,6 +126,11 @@ begin
                     testi <= testi + 1;
                 end if;
             end if;
+
+            output_shift_register <= output_shift_register(7 downto 0) & output_shift_register(15 downto 8);
+
+            rgmii_tx_and_ctl_HI <= '1' & x"5";
+            rgmii_tx_and_ctl_LO <= '1' & x"a";
         end if; --rising_edge
     end process test_rgmii_clock;	
 ------------------------------------------------------------------------
