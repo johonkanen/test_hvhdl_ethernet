@@ -1,0 +1,6 @@
+[submodule "source/hVHDL_gigabit_ethernet"]
+	path = source/hVHDL_gigabit_ethernet
+	url = https://github.com/hVHDL/hVHDL_gigabit_ethernet.git
+[submodule "fpga_communication"]
+	path = fpga_communication
+	url = https://github.com/johonkanen/fpga_communication.git
