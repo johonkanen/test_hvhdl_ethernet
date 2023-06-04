@@ -6,3 +6,8 @@ vunit_out/
 .lock
 *.cf
 titanium_custom_board/*/
+outflow/
+*.vdb
+work_pnr/
+work_pt/
+work_syn/
