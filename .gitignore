@@ -1,0 +1,7 @@
+*.swo
+*.*~
+*.swp
+vunit_out/
+*.o
+.lock
+titanium_custom_board/work_pt/
