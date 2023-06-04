@@ -30,7 +30,6 @@ architecture rtl of top is
     signal register_in_top : natural range 0 to 2**16-1 := 44252;
     signal mdio_driver : mdio_driver_record := init_mdio_driver_record;
 
-    signal test_counter : natural := 0;
 begin
 
     mdio_clock             <= mdio_driver.mdio_clock;
@@ -46,22 +45,11 @@ begin
             create_mdio_driver(mdio_driver, mdio_data_io_in);
 
             if data_is_requested_from_address_range(bus_from_communications, 0, 100) then
-                read_data_from_mdio(mdio_driver, x"01", std_logic_vector(to_unsigned(get_address(bus_from_communications),8)));
-                test_counter <= 1000;
+                read_data_from_mdio(mdio_driver, x"00", std_logic_vector(to_unsigned(get_address(bus_from_communications),8)));
             end if;
 
             if mdio_read_is_ready(mdio_driver) then
                 write_data_to_address(bus_from_top, 0, to_integer(unsigned(get_mdio_data(mdio_driver))));
-            end if;
-            if test_counter < 500 then
-                mdio_driver.MDIO_io_direction_is_out_when_1 <= '0';
-            else
-                mdio_driver.MDIO_io_direction_is_out_when_1 <= '1';
-                mdio_driver.mdio_io_data_out <= mdio_clock;
-            end if;
-
-            if test_counter >0 then
-                test_counter <= test_counter - 1;
             end if;
             
         end if; --rising_edge

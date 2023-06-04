@@ -14,6 +14,8 @@ comport = str(sys.argv[1])
 from uart_communication_functions import *
 
 uart = uart_link(comport, 5e6)
-
-print("read data from uart : ", uart.request_data_from_address(1000))
-print("read data from mdio : ", uart.request_data_from_address(1))
+# print("read data from uart : ", uart.request_data_from_address(1000))
+# print("read data from mdio : ", uart.request_data_from_address(4))
+os.system('cls')
+for i in range(32):
+    print(i, " : ", hex(uart.request_data_from_address(i)))
