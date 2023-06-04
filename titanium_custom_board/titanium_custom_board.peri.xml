@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efxpt:design_db name="titanium_custom_board" device_def="Ti60F225" location="C:\Users\jaarh\mycodeprojects\test_hvhdl_ethernet\titanium_custom_board" version="2022.2.322.5.7" db_version="20222999" last_change_date="Sun Jun  4 13:55:45 2023" xmlns:efxpt="http://www.efinixinc.com/peri_design_db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/peri_design_db peri_design_db.xsd ">
+<efxpt:design_db name="titanium_custom_board" device_def="Ti60F225" location="C:\Users\jaarh\mycodeprojects\test_hvhdl_ethernet\titanium_custom_board" version="2022.2.322.5.7" db_version="20222999" last_change_date="Sun Jun  4 14:55:09 2023" xmlns:efxpt="http://www.efinixinc.com/peri_design_db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/peri_design_db peri_design_db.xsd ">
     <efxpt:device_info>
         <efxpt:iobank_info>
             <efxpt:iobank name="1A" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="1A_MODE_SEL"/>
@@ -10,9 +10,9 @@
             <efxpt:iobank name="3B" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="3B_MODE_SEL"/>
             <efxpt:iobank name="4A" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="4A_MODE_SEL"/>
             <efxpt:iobank name="4B" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="4B_MODE_SEL"/>
-            <efxpt:iobank name="BL" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="BL_MODE_SEL"/>
-            <efxpt:iobank name="BR" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="BR_MODE_SEL"/>
-            <efxpt:iobank name="TL" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="TL_MODE_SEL"/>
+            <efxpt:iobank name="BL" iostd="3.3 V LVCMOS" is_dyn_voltage="false" mode_sel_name="BL_MODE_SEL"/>
+            <efxpt:iobank name="BR" iostd="3.3 V LVCMOS" is_dyn_voltage="false" mode_sel_name="BR_MODE_SEL"/>
+            <efxpt:iobank name="TL" iostd="3.3 V LVCMOS" is_dyn_voltage="false" mode_sel_name="TL_MODE_SEL"/>
             <efxpt:iobank name="TR" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="TR_MODE_SEL"/>
         </efxpt:iobank_info>
         <efxpt:ctrl_info>
@@ -82,12 +82,35 @@
         </efxpt:clkmux_info>
     </efxpt:device_info>
     <efxpt:gpio_info>
-        <efxpt:comp_gpio name="gpio_inst1" gpio_def="" mode="input" bus_name="" io_standard="1.8 V LVCMOS">
-            <efxpt:input_config name="gpio_inst1" name_ddio_lo="" conn_type="normal" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="gpio_inst1_PULL_UP_ENA" dyn_delay_en_name="gpio_inst1_DLY_ENA" dyn_delay_reset_name="gpio_inst1_DLY_RST" dyn_delay_ctrl_name="gpio_inst1_DLY_CTRL" clkmux_buf_name=""/>
+        <efxpt:comp_gpio name="onboard_clock" gpio_def="GPIOR_P_19" mode="input" bus_name="" io_standard="1.8 V LVCMOS">
+            <efxpt:input_config name="onboard_clock" name_ddio_lo="" conn_type="pll_clkin" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="onboard_clock_PULL_UP_ENA" dyn_delay_en_name="onboard_clock_DLY_ENA" dyn_delay_reset_name="onboard_clock_DLY_RST" dyn_delay_ctrl_name="onboard_clock_DLY_CTRL" clkmux_buf_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="uart_rx" gpio_def="GPIOL_01" mode="input" bus_name="" io_standard="3.3 V LVCMOS">
+            <efxpt:input_config name="uart_rx" name_ddio_lo="" conn_type="normal" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none" is_bus_hold="false" delay="0" is_serial="false" is_dyn_delay="false" fastclk_name="" pullup_ena_name="uart_rx_PULL_UP_ENA" dyn_delay_en_name="uart_rx_DLY_ENA" dyn_delay_reset_name="uart_rx_DLY_RST" dyn_delay_ctrl_name="uart_rx_DLY_CTRL" clkmux_buf_name=""/>
+        </efxpt:comp_gpio>
+        <efxpt:comp_gpio name="uart_tx" gpio_def="GPIOL_02" mode="output" bus_name="" io_standard="3.3 V LVCMOS">
+            <efxpt:output_config name="uart_tx" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" delay="0" is_serial="false" drive_strength="4" fastclk_name=""/>
         </efxpt:comp_gpio>
         <efxpt:global_unused_config state="input with weak pullup"/>
     </efxpt:gpio_info>
-    <efxpt:pll_info/>
+    <efxpt:pll_info>
+        <efxpt:pll name="pll_inst1" pll_def="PLL_TR0" ref_clock_name="" ref_clock_freq="50.0000" multiplier="2" pre_divider="1" post_divider="2" reset_name="" locked_name="" is_ipfrz="false" is_bypass_lock="true">
+            <efxpt:adv_prop ref_clock_mode="external" ref_clock1_name="" ext_ref_clock_id="2" clksel_name="" feedback_clock_name="pll_inst1_CLKOUT0" feedback_mode="local"/>
+            <efxpt:gen_pin>
+                <efxpt:pin name="" type_name="SHIFT_ENA" is_bus="false"/>
+                <efxpt:pin name="" type_name="DESKEWED" is_bus="false"/>
+                <efxpt:pin name="" type_name="SHIFT" is_bus="true"/>
+                <efxpt:pin name="" type_name="SHIFT_SEL" is_bus="true"/>
+            </efxpt:gen_pin>
+            <efxpt:comp_output_clock name="pll_inst1_CLKOUT0" number="0" out_divider="24" is_dyn_phase="false" phase_setting="0">
+                <efxpt:gen_pin/>
+            </efxpt:comp_output_clock>
+            <efxpt:comp_output_clock name="clock_120mhz" number="1" out_divider="20" is_dyn_phase="false" phase_setting="0">
+                <efxpt:gen_pin/>
+            </efxpt:comp_output_clock>
+            <efxpt:comp_prop is_outclk_inverted="false"/>
+        </efxpt:pll>
+    </efxpt:pll_info>
     <efxpt:osc_info/>
     <efxpt:lvds_info/>
     <efxpt:jtag_info/>

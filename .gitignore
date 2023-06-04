@@ -4,5 +4,5 @@
 vunit_out/
 *.o
 .lock
-titanium_custom_board/work_pt/
 *.cf
+titanium_custom_board/*/
