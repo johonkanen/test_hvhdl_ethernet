@@ -11,11 +11,14 @@ entity top is
         uart_rx      : in std_logic;
         uart_tx      : out std_logic;
 
-        mdio_clock       : out std_logic;
+        mdio_clock             : out std_logic;
         mdio_data_io_in        : in std_logic;
         mdio_data_io_out       : out std_logic;
-        mdio_dir_is_out_when_1 : out std_logic
+        mdio_dir_is_out_when_1 : out std_logic;
 
+        rgmii_rx_pll_clock  : in std_logic;
+        rgmii_rx_and_ctl_HI : in std_logic_vector(4 downto 0);
+        rgmii_rx_and_ctl_LO : in std_logic_vector(4 downto 0)
     );
 end entity top;
 
@@ -30,6 +33,8 @@ architecture rtl of top is
     signal register_in_top : natural range 0 to 2**16-1 := 44252;
     signal mdio_driver : mdio_driver_record := init_mdio_driver_record;
 
+    signal testi : natural range 0 to 2**16-1 := 0;
+
 begin
 
     mdio_clock             <= mdio_driver.mdio_clock;
@@ -41,6 +46,7 @@ begin
         if rising_edge(clock_120mhz) then
             init_bus(bus_from_top);
             connect_data_to_address(bus_from_communications, bus_from_top, 1000, register_in_top);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1001, testi);
 
             create_mdio_driver(mdio_driver, mdio_data_io_in);
 
@@ -55,6 +61,18 @@ begin
         end if; --rising_edge
     end process test_communications;	
 
+------------------------------------------------------------------------
+    test_rgmii_clock : process(rgmii_rx_pll_clock)
+        
+    begin
+        if rising_edge(rgmii_rx_pll_clock) then
+            if rgmii_rx_and_ctl_HI(4) = '1' and rgmii_rx_and_ctl_LO(4) = '1' then
+                if testi < 44252 then
+                    testi <= testi + 1;
+                end if;
+            end if;
+        end if; --rising_edge
+    end process test_rgmii_clock;	
 ------------------------------------------------------------------------
     create_bus : process(clock_120mhz)
     begin
