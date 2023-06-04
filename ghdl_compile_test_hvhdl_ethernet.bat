@@ -1,6 +1,5 @@
 echo off
 rem test_hvhdl_ethernet.vhd
 
-SET source=%1
-
-fpga_communication/ghdl_compile_fpga_communication.bat fpga_communication/
+call fpga_communication/ghdl_compile_fpga_communication.bat fpga_communication/
+call source/hVHDL_gigabit_ethernet/ghdl_compile_ethernet.bat source/hVHDL_gigabit_ethernet/
