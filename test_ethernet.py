@@ -21,6 +21,7 @@ print("number of received bytes : "  , (uart.request_data_from_address(1001)))
 print("number of start of frame delimiters : " , hex(uart.request_data_from_address(1002)))
 print("shift register value : " , hex(uart.request_data_from_address(1003)))
 print("read data4 from rx clock : " , (uart.request_data_from_address(1004)))
+print("read data5 from rx clock : " , (uart.request_data_from_address(1005)))
 # os.system('cls')
 # for i in range(32):
 #     print(i, " : ", hex(uart.request_data_from_address(i)))

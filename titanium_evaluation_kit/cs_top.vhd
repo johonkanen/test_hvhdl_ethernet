@@ -129,7 +129,7 @@ begin
 
             output_shift_register <= output_shift_register(7 downto 0) & output_shift_register(15 downto 8);
 
-            rgmii_tx_and_ctl_HI <= '1' & x"5";
+            rgmii_tx_and_ctl_HI <= '1' & x"a";
             rgmii_tx_and_ctl_LO <= '1' & x"a";
         end if; --rising_edge
     end process test_rgmii_clock;	
