@@ -1,7 +1,7 @@
 
 # Efinity Interface Designer SDC
 # Version: 2022.2.322.5.7
-# Date: 2023-06-05 08:41
+# Date: 2023-06-05 16:44
 
 # Copyright (C) 2017 - 2022 Efinix Inc. All rights reserved.
 
@@ -11,8 +11,9 @@
 
 # PLL Constraints
 #################
-create_clock -waveform {0.3333 4.3333} -period 8.0000 rgmii_rx_pll_clock
-create_clock -waveform {2.0000 6.0000} -period 8.0000 enet_tx_clock
+create_clock -period 8.0000 out
+create_clock -waveform {1.0000 5.0000} -period 8.0000 enet_tx_clock
+create_clock -waveform {2.0000 6.0000} -period 8.0000 rgmii_rx_pll_clock
 create_clock -period 10.0000 pll_inst1_CLKOUT0
 create_clock -period 8.3333 clock_120mhz
 
@@ -79,5 +80,4 @@ set_output_delay -clock enet_tx_clock -reference_pin [get_ports {enet_tx_clock~C
 # rgmii_tx_and_ctl[3] -clock enet_tx_clock -reference_pin [get_ports {enet_tx_clock~CLKOUT~203~322}]
 # rgmii_tx_and_ctl[4] -clock enet_tx_clock -reference_pin [get_ports {enet_tx_clock~CLKOUT~213~322}]
 # rgmii_tx_clock -clock enet_tx_clock -reference_pin [get_ports {enet_tx_clock~CLKOUT~217~322}]
-
 set_clock_groups -exclusive -group { rgmii_rx_pll_clock }

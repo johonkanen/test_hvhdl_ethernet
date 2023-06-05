@@ -118,7 +118,6 @@ begin
                 clock_register <= fast_counter;
             end if;
 
-
             rmgii_active <= rgmii_data_ready;
             if rgmii_data_ready or rmgii_active then
                 shift_register <= shift_register(7 downto 0) & rgmii_data;
