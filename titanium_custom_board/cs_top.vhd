@@ -2,41 +2,6 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-    use work.ethernet_rx_ddio_pkg.all;
-
-entity ethernet_rx_ddio is
-    port (
-        clk : in std_logic;
-        ethernet_rx_ddio_fpga_in : in ethernet_rx_ddio_FPGA_input_group;
-        ethernet_ddio_out : out ethernet_rx_ddio_data_output_group
-    );
-end entity ethernet_rx_ddio;
-
-
-architecture rtl of ethernet_rx_ddio is
-
-    alias self is ethernet_rx_ddio_fpga_in;
-
-begin
-
-    ethernet_ddio_out <= (rx_ctl => (self.fpga_IO_HI(4), self.fpga_IO_LO(4)), 
-                          ethernet_rx_byte => 
-                              (self.fpga_IO_LO(0) ,
-                                self.fpga_IO_LO(1),
-                                self.fpga_IO_LO(2),
-                                self.fpga_IO_LO(3),
-                                self.fpga_IO_HI(0),
-                                self.fpga_IO_HI(1),
-                                self.fpga_IO_HI(2),
-                                self.fpga_IO_HI(3)));
-                    
-    
-    end rtl;
-------------------------------------------------------------------------
-library ieee;
-    use ieee.std_logic_1164.all;
-    use ieee.numeric_std.all;
-
     use work.fpga_interconnect_pkg.all;
     use work.mdio_driver_internal_pkg.all;
 
@@ -138,6 +103,27 @@ begin
 
 ------------------------------------------------------------------------
     test_rgmii_clock : process(rgmii_rx_pll_clock)
+
+        procedure transmit_byte
+        (
+            signal ddio_hi, ddio_lo : std_logic_vector(4 downto 0);
+            byte : in std_logic_vector(7 downto 0)
+        ) is
+        begin
+            rgmii_tx_and_ctl_HI <= '1' & byte(7 downto 4);
+            rgmii_tx_and_ctl_LO <= '1' & byte(3 downto 0);
+            
+        end transmit_byte;
+
+        procedure idle_transmitter
+        (
+            signal ddio_hi, ddio_lo : std_logic_vector(4 downto 0)
+        ) is
+        begin
+            rgmii_tx_and_ctl_HI <= '0' & x"0";
+            rgmii_tx_and_ctl_LO <= '0' & x"0";
+            
+        end idle_transmitter;
         
     begin
         if rising_edge(rgmii_rx_pll_clock) then
@@ -165,8 +151,8 @@ begin
 
             output_shift_register <= output_shift_register(7 downto 0) & output_shift_register(15 downto 8);
 
-            rgmii_tx_and_ctl_HI <= '1' & x"d";
-            rgmii_tx_and_ctl_LO <= '1' & x"a";
+            idle_transmitter(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO);
+            transmit_byte(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO, x"da");
 
             toggle_counters <= toggle_counters(1 downto 0) & request_another_counter_reset;
             if toggle_counters(2) /= toggle_counters(1) then
