@@ -152,7 +152,7 @@ begin
             rmgii_active <= ethernet_rx_is_active(ethernet_ddio_out);
             if ethernet_rx_is_active(ethernet_ddio_out) or rmgii_active then
                 shift_register <= shift_register(7 downto 0) & get_reversed_byte(ethernet_ddio_out);
-                if shift_register /= x"aaaa" then
+                if shift_register /= x"dada" then
                     testi2 <= testi2 + 1;
                     if testi2 = 65535 then
                         testi3 <= testi3 + 1;
@@ -165,7 +165,7 @@ begin
 
             output_shift_register <= output_shift_register(7 downto 0) & output_shift_register(15 downto 8);
 
-            rgmii_tx_and_ctl_HI <= '1' & x"a";
+            rgmii_tx_and_ctl_HI <= '1' & x"d";
             rgmii_tx_and_ctl_LO <= '1' & x"a";
 
             toggle_counters <= toggle_counters(1 downto 0) & request_another_counter_reset;
