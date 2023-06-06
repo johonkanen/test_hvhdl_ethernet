@@ -1,7 +1,7 @@
 
 # Efinity Interface Designer SDC
 # Version: 2022.2.322.5.7
-# Date: 2023-06-06 18:13
+# Date: 2023-06-06 18:31
 
 # Copyright (C) 2017 - 2022 Efinix Inc. All rights reserved.
 
@@ -11,8 +11,9 @@
 
 # PLL Constraints
 #################
+create_clock -period 8.0000 pll_inst3_CLKOUT0
+create_clock -waveform {1.2727 5.2727} -period 8.0000 enet_tx_clock
 create_clock -period 8.0000 outclock
-create_clock -waveform {1.6667 5.6667} -period 8.0000 enet_tx_clock
 create_clock -waveform {2.3333 6.3333} -period 8.0000 rgmii_rx_pll_clock
 create_clock -period 10.0000 pll_inst1_CLKOUT0
 create_clock -period 8.3333 clock_120mhz
