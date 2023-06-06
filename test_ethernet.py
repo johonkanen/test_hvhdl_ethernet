@@ -15,7 +15,7 @@ comport = str(sys.argv[1])
 from uart_communication_functions import *
 
 uart = uart_link(comport                       , 5e6)
-uart.write_data_to_address(0                   , int('4140', 16))
+uart.write_data_to_address(0                   , int('1140', 16))
 uart.write_data_to_address(10000, 1); #reset counters
 # time.sleep(2.5)
 print("read data from uart : "                 , hex(uart.request_data_from_address(1000)))

@@ -7,6 +7,9 @@ library ieee;
 
     use work.ethernet_rx_ddio_pkg.all;
 
+    use work.ethernet_frame_ram_read_pkg.all;
+    use work.ethernet_frame_ram_write_pkg.all;
+
 entity top is
     port (
         clock_120mhz : in std_logic;
@@ -47,7 +50,7 @@ architecture rtl of top is
     signal shift_register : std_logic_vector(15 downto 0);
     signal rmgii_active : boolean := false;
     signal testi2 : natural range 0 to 2**16-1 := 0;
-    signal testi3 : natural range 0 to 2**16-1 := 56;
+    signal testi3 : natural range 0 to 2**16-1 := 0;
     signal toggle : std_logic_vector(2 downto 0) := (others => '0');
     signal toggle_counters : std_logic_vector(2 downto 0) := (others => '0');
     signal fast_counter : natural range 0 to 2**16-1 := 0;
@@ -55,6 +58,14 @@ architecture rtl of top is
 
     signal output_shift_register : std_logic_vector(15 downto 0) := x"acdc";
     signal ethernet_ddio_out : ethernet_rx_ddio_data_output_group;
+
+    signal ram_read_control_port : ram_read_control_group := init_ram_read_port;
+    signal ram_read_out_port : ram_read_output_group := ram_read_output_init;
+
+    signal write_port : ram_write_control_record := init_ram_write_control;
+
+    signal ram_reader : ram_reader_record := init_ram_reader;
+    signal ram_shift_register : std_logic_vector(31 downto 0) := (others => '0');
 
 begin
 
@@ -97,6 +108,15 @@ begin
                 clock_counter <= 30e3;
                 request_counter_reset <= not request_counter_reset;
             end if;
+
+            create_ram_reader(ram_reader, ram_read_control_port, ram_read_out_port, ram_shift_register);
+            if data_is_requested_from_address_range(bus_from_communications, 10e3, 10e3+511) then
+                load_ram_with_offset_to_shift_register(ram_reader, (get_address(bus_from_communications) - 10e3)*2, 2);
+            end if;
+            if ram_is_buffered_to_shift_register(ram_reader) then
+                write_data_to_address(bus_from_top, 0, to_integer(unsigned(ram_shift_register)));
+            end if;
+
             
         end if; --rising_edge
     end process test_communications;	
@@ -135,14 +155,13 @@ begin
                 clock_register <= fast_counter;
             end if;
 
+            init_ram_write(write_port);
             rmgii_active <= ethernet_rx_is_active(ethernet_ddio_out);
             if ethernet_rx_is_active(ethernet_ddio_out) or rmgii_active then
-                shift_register <= shift_register(7 downto 0) & get_reversed_byte(ethernet_ddio_out);
-                if shift_register /= x"dada" then
+                shift_register <= shift_register(7 downto 0) & get_byte_with_inverted_bit_order(ethernet_ddio_out);
+                if testi2 < 2**10-1 then
                     testi2 <= testi2 + 1;
-                    if testi2 = 65535 then
-                        testi3 <= testi3 + 1;
-                    end if;
+                    write_data_to_ram(write_port, testi2, get_byte_with_inverted_bit_order(ethernet_ddio_out));
                 end if;
                 if testi < 50e3 then
                     testi <= testi + 1;
@@ -152,18 +171,21 @@ begin
             output_shift_register <= output_shift_register(7 downto 0) & output_shift_register(15 downto 8);
 
             idle_transmitter(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO);
-            transmit_byte(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO, x"da");
+            -- transmit_byte(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO, x"da");
 
             toggle_counters <= toggle_counters(1 downto 0) & request_another_counter_reset;
             if toggle_counters(2) /= toggle_counters(1) then
                 testi2 <= 0;
-                testi3 <= 0;
             end if;
         end if; --rising_edge
     end process test_rgmii_clock;	
 
     u_rxddio : entity work.ethernet_rx_ddio
     port map(rgmii_rx_pll_clock, (rgmii_rx_and_ctl_HI, rgmii_rx_and_ctl_LO), ethernet_ddio_out);
+
+    u_dpram : entity work.dpram
+    port map(clock_120mhz, ram_read_control_port,ram_read_out_port, rgmii_rx_pll_clock, write_port);
+
 ------------------------------------------------------------------------
     create_bus : process(clock_120mhz)
     begin
