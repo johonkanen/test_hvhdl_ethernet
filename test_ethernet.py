@@ -17,7 +17,7 @@ from uart_communication_functions import *
 uart = uart_link(comport                       , 5e6)
 uart.write_data_to_address(0                   , int('4140', 16))
 uart.write_data_to_address(10000, 1); #reset counters
-time.sleep(0.5)
+# time.sleep(2.5)
 print("read data from uart : "                 , hex(uart.request_data_from_address(1000)))
 print("read data from mdio : "                 , hex(uart.request_data_from_address(0)))
 print("number of received bytes : "            , (uart.request_data_from_address(1001)))
