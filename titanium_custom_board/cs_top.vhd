@@ -2,8 +2,45 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
+    use work.ethernet_rx_ddio_pkg.all;
+
+entity ethernet_rx_ddio is
+    port (
+        clk : in std_logic;
+        ethernet_rx_ddio_fpga_in : in ethernet_rx_ddio_FPGA_input_group;
+        ethernet_ddio_out : out ethernet_rx_ddio_data_output_group
+    );
+end entity ethernet_rx_ddio;
+
+
+architecture rtl of ethernet_rx_ddio is
+
+    alias self is ethernet_rx_ddio_fpga_in;
+
+begin
+
+    ethernet_ddio_out <= (rx_ctl => (self.fpga_IO_HI(4), self.fpga_IO_LO(4)), 
+                          ethernet_rx_byte => 
+                              (self.fpga_IO_LO(0) ,
+                                self.fpga_IO_LO(1),
+                                self.fpga_IO_LO(2),
+                                self.fpga_IO_LO(3),
+                                self.fpga_IO_HI(0),
+                                self.fpga_IO_HI(1),
+                                self.fpga_IO_HI(2),
+                                self.fpga_IO_HI(3)));
+                    
+    
+    end rtl;
+------------------------------------------------------------------------
+library ieee;
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
+
     use work.fpga_interconnect_pkg.all;
     use work.mdio_driver_internal_pkg.all;
+
+    use work.ethernet_rx_ddio_pkg.all;
 
 entity top is
     port (
@@ -38,6 +75,7 @@ architecture rtl of top is
     signal mdio_driver : mdio_driver_record := init_mdio_driver_record;
 
     signal request_counter_reset : std_logic := '0';
+    signal request_another_counter_reset : std_logic := '0';
     signal clock_counter : natural := 30000;
     signal testi : natural range 0 to 2**16-1 := 0;
     -- rgmii clock data
@@ -46,10 +84,12 @@ architecture rtl of top is
     signal testi2 : natural range 0 to 2**16-1 := 0;
     signal testi3 : natural range 0 to 2**16-1 := 56;
     signal toggle : std_logic_vector(2 downto 0) := (others => '0');
+    signal toggle_counters : std_logic_vector(2 downto 0) := (others => '0');
     signal fast_counter : natural range 0 to 2**16-1 := 0;
     signal clock_register : natural range 0 to 2**16-1 := 0;
 
     signal output_shift_register : std_logic_vector(15 downto 0) := x"acdc";
+    signal ethernet_ddio_out : ethernet_rx_ddio_data_output_group;
 
 begin
 
@@ -69,6 +109,10 @@ begin
             connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1005, testi3);
 
             create_mdio_driver(mdio_driver, mdio_data_io_in);
+
+            if write_to_address_is_requested(bus_from_communications, 10e3) then
+                request_another_counter_reset <= not request_another_counter_reset;
+            end if;
 
             if write_is_requested_to_address_range(bus_from_communications, 0, 100) then
                 write_data_to_mdio(mdio_driver, x"00", std_logic_vector(to_unsigned(get_address(bus_from_communications),8)), std_logic_vector(to_unsigned(get_data(bus_from_communications),16)));
@@ -94,22 +138,9 @@ begin
 
 ------------------------------------------------------------------------
     test_rgmii_clock : process(rgmii_rx_pll_clock)
-        variable rgmii_data : std_logic_vector(7 downto 0);
-        variable rgmii_data_ready : boolean;
         
     begin
         if rising_edge(rgmii_rx_pll_clock) then
-            testi3 <= 10e3;
-            rgmii_data := 
-                rgmii_rx_and_ctl_HI(3) &
-                rgmii_rx_and_ctl_HI(2) &
-                rgmii_rx_and_ctl_HI(1) &
-                rgmii_rx_and_ctl_HI(0) &
-                rgmii_rx_and_ctl_LO(3) &
-                rgmii_rx_and_ctl_LO(2) &
-                rgmii_rx_and_ctl_LO(1) &
-                rgmii_rx_and_ctl_LO(0);
-            rgmii_data_ready := rgmii_rx_and_ctl_HI(4) = '1' and rgmii_rx_and_ctl_LO(4) = '1';
 
             fast_counter <= fast_counter + 1;
             toggle <= toggle(1 downto 0) & request_counter_reset;
@@ -118,13 +149,16 @@ begin
                 clock_register <= fast_counter;
             end if;
 
-            rmgii_active <= rgmii_data_ready;
-            if rgmii_data_ready or rmgii_active then
-                shift_register <= shift_register(7 downto 0) & rgmii_data;
-                if shift_register = x"aaab" then
+            rmgii_active <= ethernet_rx_is_active(ethernet_ddio_out);
+            if ethernet_rx_is_active(ethernet_ddio_out) or rmgii_active then
+                shift_register <= shift_register(7 downto 0) & get_reversed_byte(ethernet_ddio_out);
+                if shift_register /= x"abab" then
                     testi2 <= testi2 + 1;
+                    if testi2 = 65535 then
+                        testi3 <= testi3 + 1;
+                    end if;
                 end if;
-                if testi < 44252 then
+                if testi < 50e3 then
                     testi <= testi + 1;
                 end if;
             end if;
@@ -133,8 +167,17 @@ begin
 
             rgmii_tx_and_ctl_HI <= '1' & x"a";
             rgmii_tx_and_ctl_LO <= '1' & x"b";
+
+            toggle_counters <= toggle_counters(1 downto 0) & request_another_counter_reset;
+            if toggle_counters(2) /= toggle_counters(1) then
+                testi2 <= 0;
+                testi3 <= 0;
+            end if;
         end if; --rising_edge
     end process test_rgmii_clock;	
+
+    u_rxddio : entity work.ethernet_rx_ddio
+    port map(rgmii_rx_pll_clock, (rgmii_rx_and_ctl_HI, rgmii_rx_and_ctl_LO), ethernet_ddio_out);
 ------------------------------------------------------------------------
     create_bus : process(clock_120mhz)
     begin
