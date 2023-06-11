@@ -17,16 +17,18 @@ from uart_communication_functions import *
 uart = uart_link(comport                       , 5e6)
 uart.write_data_to_address(0                   , int('1140', 16))
 uart.write_data_to_address(10000, 1); #reset counters
-# time.sleep(2.5)
+time.sleep(0.5)
 print("read data from uart : "                 , hex(uart.request_data_from_address(1000)))
 print("read data from mdio : "                 , hex(uart.request_data_from_address(0)))
-print("number of received bytes : "            , (uart.request_data_from_address(1001)))
+print("number of receive errors : "            , (uart.request_data_from_address(1001)))
 print("number of start of frame delimiters : " , (uart.request_data_from_address(1002)))
 print("read data4 from rx clock : "            , (uart.request_data_from_address(1004)))
 print("read data5 from rx clock : "            , (uart.request_data_from_address(1005)))
+print("read number of crc checks : "            , (uart.request_data_from_address(1006)))
 # os.system('cls')
 # for i in range(32):
 #     print(i, " : ", hex(uart.request_data_from_address(i)))
-for i in range(10):
+for i in range(256):
     # print(i, " : ", hex(uart.request_data_from_address(i)))
-    print("shift register value : " , hex(uart.request_data_from_address(1003)))
+    # print("shift register value : " , hex(uart.request_data_from_address(1003)))
+    print("shift register value : " , hex(uart.request_data_from_address(10000+i)))
