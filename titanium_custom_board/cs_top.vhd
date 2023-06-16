@@ -71,6 +71,8 @@ architecture rtl of top is
     signal frame_detected : boolean := false;
     signal crc32 : std_logic_vector(31 downto 0) := (others => '1');
     signal crc_check_counter : natural range 0 to 2**16-1 := 0;
+    
+    signal empty_ram : boolean := false;
 
 begin
 
@@ -178,16 +180,14 @@ begin
                     crc32 <= (others => '1');
                 end if;
 
-                -- if frame_detected or shift_register = x"aaab" then
-                    if testi2 < 2**10-1 then
-                        testi2 <= testi2 + 1;
-                        -- if frame_detected then
-                        --     write_data_to_ram(write_port, testi2, get_byte_with_inverted_bit_order(ethernet_ddio_out));
-                        -- else
-                            write_data_to_ram(write_port, testi2, std_logic_vector(to_unsigned(testi2, 8)));
-                        -- end if;
+                if testi2 < 2**10-1 then
+                    testi2 <= testi2 + 1;
+                    if frame_detected then
+                        write_data_to_ram(write_port, testi2, get_byte(ethernet_ddio_out));
+                    else
+                        write_data_to_ram(write_port, testi2, get_byte_with_inverted_bit_order(ethernet_ddio_out));
                     end if;
-                -- end if;
+                end if;
             else
                 frame_detected <= false;
             end if;
@@ -195,12 +195,24 @@ begin
             output_shift_register <= output_shift_register(7 downto 0) & output_shift_register(15 downto 8);
 
             idle_transmitter(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO);
-            -- transmit_byte(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO, x"5a");
+            transmit_byte(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO, output_shift_register(15 downto 8));
 
             toggle_counters <= toggle_counters(1 downto 0) & request_another_counter_reset;
             if toggle_counters(2) /= toggle_counters(1) then
                 testi2 <= 0;
                 testi <= 0;
+                empty_ram <= true;
+            end if;
+
+            if empty_ram then
+                if testi2 < 2**10-1 then
+                    testi2 <= testi2 + 1;
+                    write_data_to_ram(write_port, testi2, x"00");
+                else
+                    empty_ram <= false;
+                    testi2 <= 0;
+                    testi <= 0;
+                end if;
             end if;
         end if; --rising_edge
     end process test_rgmii_clock;	
