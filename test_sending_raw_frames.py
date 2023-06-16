@@ -10,5 +10,5 @@ example_data = b"Hello, World!"
 ethernet_frame = Ether(dst=destination_mac) / example_data
 
 # Send the Ethernet frame
-sendp(ethernet_frame, iface="Ethernet")
+sendp(ethernet_frame, iface="Ethernet 2")
 

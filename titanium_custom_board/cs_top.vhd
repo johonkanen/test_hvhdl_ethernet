@@ -182,11 +182,12 @@ begin
 
                 if testi2 < 2**10-1 then
                     testi2 <= testi2 + 1;
-                    if frame_detected then
-                        write_data_to_ram(write_port, testi2, get_byte(ethernet_ddio_out));
-                    else
-                        write_data_to_ram(write_port, testi2, get_byte_with_inverted_bit_order(ethernet_ddio_out));
-                    end if;
+                    -- if frame_detected then
+                    write_data_to_ram(write_port, testi2, get_byte(ethernet_ddio_out));
+                    -- else
+                    -- write_data_to_ram(write_port, testi2, get_byte_with_inverted_bit_order(ethernet_ddio_out));
+                    -- write_data_to_ram(write_port, testi2, get_reversed_byte(ethernet_ddio_out));
+                    -- end if;
                 end if;
             else
                 frame_detected <= false;
@@ -195,7 +196,7 @@ begin
             output_shift_register <= output_shift_register(7 downto 0) & output_shift_register(15 downto 8);
 
             idle_transmitter(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO);
-            transmit_byte(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO, output_shift_register(15 downto 8));
+            -- transmit_byte(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO, output_shift_register(15 downto 8));
 
             toggle_counters <= toggle_counters(1 downto 0) & request_another_counter_reset;
             if toggle_counters(2) /= toggle_counters(1) then
