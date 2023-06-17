@@ -2,6 +2,54 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
+package ethernet_receiver_pkg is
+
+    type ethernet_receiver_record is record
+        shift_register : std_logic_vector(15 downto 0);
+        crc32          : std_logic_vector(31 downto 0);
+        frame_detected : boolean;
+        receiver_ram_address : natural;
+    end record;
+
+    constant init_ethernet_receiver : ethernet_receiver_record := ((others => '0'), (others => '1'), false, 0);
+
+    procedure idle_transmitter (
+        signal ddio_hi, ddio_lo : out std_logic_vector(4 downto 0));
+
+    procedure transmit_byte (
+        signal ddio_hi, ddio_lo : out std_logic_vector(4 downto 0);
+        byte : in std_logic_vector(7 downto 0));
+
+end package ethernet_receiver_pkg;
+
+package body ethernet_receiver_pkg is
+        procedure transmit_byte
+        (
+            signal ddio_hi, ddio_lo : out std_logic_vector(4 downto 0);
+            byte : in std_logic_vector(7 downto 0)
+        ) is
+        begin
+            ddio_hi <= '1' & byte(7 downto 4);
+            ddio_lo <= '1' & byte(3 downto 0);
+            
+        end transmit_byte;
+
+        procedure idle_transmitter
+        (
+            signal ddio_hi, ddio_lo : out std_logic_vector(4 downto 0)
+        ) is
+        begin
+            ddio_hi <= '0' & x"0";
+            ddio_lo <= '0' & x"0";
+            
+        end idle_transmitter;
+
+end package body ethernet_receiver_pkg;
+------------------------------------------------------------------------
+library ieee;
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
+
     use work.fpga_interconnect_pkg.all;
     use work.mdio_driver_internal_pkg.all;
 
@@ -10,6 +58,7 @@ library ieee;
     use work.ethernet_frame_ram_read_pkg.all;
     use work.ethernet_frame_ram_write_pkg.all;
     use work.PCK_CRC32_D8.all;
+    use work.ethernet_receiver_pkg.all;
 
 entity top is
     port (
@@ -48,9 +97,7 @@ architecture rtl of top is
     signal clock_counter : natural := 30000;
     signal testi : natural range 0 to 2**16-1 := 0;
     -- rgmii clock data
-    signal shift_register : std_logic_vector(15 downto 0);
     signal rmgii_active : boolean := false;
-    signal testi2 : natural range 0 to 2**16-1 := 0;
     signal testi3 : natural range 0 to 2**16-1 := 0;
     signal toggle : std_logic_vector(2 downto 0) := (others => '0');
     signal toggle_counters : std_logic_vector(2 downto 0) := (others => '0');
@@ -68,13 +115,12 @@ architecture rtl of top is
     signal ram_reader : ram_reader_record := init_ram_reader;
     signal ram_shift_register : std_logic_vector(31 downto 0) := (others => '0');
 
-    signal frame_detected : boolean := false;
-    signal crc32 : std_logic_vector(31 downto 0) := (others => '1');
     signal crc_check_counter : natural range 0 to 2**16-1 := 0;
     
     signal empty_ram : boolean := false;
     signal crc_counter : integer range 0 to 7 := 0;
-    signal crc_result : std_logic_vector(31 downto 0) := (others => '0');
+
+    signal self : ethernet_receiver_record := init_ethernet_receiver;
 
 begin
 
@@ -88,8 +134,8 @@ begin
             init_bus(bus_from_top);
             connect_data_to_address(bus_from_communications, bus_from_top, 1000, register_in_top);
             connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1001, testi);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1002, testi2);
-            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1003, shift_register);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1002, self.receiver_ram_address);
+            connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1003, self.shift_register);
             connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1004, clock_register);
             connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1005, testi3);
             connect_read_only_data_to_address(bus_from_communications, bus_from_top, 1006, crc_check_counter);
@@ -135,26 +181,6 @@ begin
 ------------------------------------------------------------------------
     test_rgmii_clock : process(rgmii_rx_pll_clock)
 
-        procedure transmit_byte
-        (
-            signal ddio_hi, ddio_lo : std_logic_vector(4 downto 0);
-            byte : in std_logic_vector(7 downto 0)
-        ) is
-        begin
-            rgmii_tx_and_ctl_HI <= '1' & byte(7 downto 4);
-            rgmii_tx_and_ctl_LO <= '1' & byte(3 downto 0);
-            
-        end transmit_byte;
-
-        procedure idle_transmitter
-        (
-            signal ddio_hi, ddio_lo : std_logic_vector(4 downto 0)
-        ) is
-        begin
-            rgmii_tx_and_ctl_HI <= '0' & x"0";
-            rgmii_tx_and_ctl_LO <= '0' & x"0";
-            
-        end idle_transmitter;
         
     begin
         if rising_edge(rgmii_rx_pll_clock) then
@@ -167,61 +193,55 @@ begin
             end if;
 
             init_ram_write(write_port);
-            rmgii_active <= ethernet_rx_is_active(ethernet_ddio_out);
+            -- rmgii_active <= ethernet_rx_is_active(ethernet_ddio_out);
             if ethernet_rx_is_active(ethernet_ddio_out) then
-                shift_register <= shift_register(7 downto 0) & get_byte(ethernet_ddio_out);
-                if shift_register(7 downto 0) & get_byte(ethernet_ddio_out) = x"aaab" then
-                    frame_detected <= true;
-                    if testi < 50e3 then
-                        testi <= testi + 1;
-                    end if;
+                self.shift_register <= self.shift_register(7 downto 0) & get_byte(ethernet_ddio_out);
+                if self.shift_register(7 downto 0) & get_byte(ethernet_ddio_out) = x"aaab" then
+                    self.frame_detected <= true;
                 end if;
-                if frame_detected then
-                    crc32      <= nextCRC32_D8(get_byte(ethernet_ddio_out), crc32);
+                if self.frame_detected then
+                    self.crc32      <= nextCRC32_D8(get_byte(ethernet_ddio_out), self.crc32);
                 end if;
 
-                if testi2 < 2**10-1 then
-                    testi2 <= testi2 + 1;
-                    if frame_detected then
-                        -- write_data_to_ram(write_port, testi2, get_reversed_byte(ethernet_ddio_out));
-                        write_data_to_ram(write_port, testi2, get_byte_with_inverted_bit_order(ethernet_ddio_out));
+                if self.receiver_ram_address < 2**10-1 then
+                    self.receiver_ram_address <= self.receiver_ram_address + 1;
+                    if self.frame_detected then
+                        write_data_to_ram(write_port, self.receiver_ram_address, get_byte_with_inverted_bit_order(ethernet_ddio_out));
                     else
-                        write_data_to_ram(write_port, testi2, get_byte(ethernet_ddio_out));
+                        write_data_to_ram(write_port, self.receiver_ram_address, get_byte(ethernet_ddio_out));
                     end if;
                 end if;
                 crc_counter <= 4;
             else
-                frame_detected <= false;
+                self.frame_detected <= false;
 
                 if crc_counter > 0 then
                     crc_counter <= crc_counter - 1;
-                    crc32 <= crc32(23 downto 0) & x"ff";
-                    write_data_to_ram(write_port, testi2, crc32(31 downto 24));
-                    testi2 <= testi2 + 1;
+                    self.crc32 <= self.crc32(23 downto 0) & x"ff";
+                    write_data_to_ram(write_port, self.receiver_ram_address, self.crc32(31 downto 24));
+                    self.receiver_ram_address <= self.receiver_ram_address + 1;
                 end if;
             end if;
 
 
+            ------------------------------------------------------------------------
             output_shift_register <= output_shift_register(7 downto 0) & output_shift_register(15 downto 8);
-
             idle_transmitter(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO);
             -- transmit_byte(rgmii_tx_and_ctl_HI, rgmii_tx_and_ctl_LO, output_shift_register(15 downto 8));
 
             toggle_counters <= toggle_counters(1 downto 0) & request_another_counter_reset;
             if toggle_counters(2) /= toggle_counters(1) then
-                testi2 <= 0;
-                testi <= 0;
+                self.receiver_ram_address <= 0;
                 empty_ram <= true;
             end if;
 
             if empty_ram then
-                if testi2 < 2**10-1 then
-                    testi2 <= testi2 + 1;
-                    write_data_to_ram(write_port, testi2, x"00");
+                if self.receiver_ram_address < 2**10-1 then
+                    self.receiver_ram_address <= self.receiver_ram_address + 1;
+                    write_data_to_ram(write_port, self.receiver_ram_address, x"00");
                 else
                     empty_ram <= false;
-                    testi2 <= 0;
-                    testi <= 0;
+                    self.receiver_ram_address <= 0;
                 end if;
             end if;
         end if; --rising_edge
