@@ -16,8 +16,8 @@ package ethernet_receiver_pkg is
         crc_counter              : natural range 0 to 7;
         number_of_bytes_received : natural;
         frame_was_received       : boolean;
-        rx_is_active : boolean;
-        inverted_byte : std_logic_vector(7 downto 0);
+        rx_is_active             : boolean;
+        inverted_byte            : std_logic_vector(7 downto 0);
     end record;
 
     constant init_ethernet_receiver : ethernet_receiver_record := ((others => '0'), (others => '1'), false, 0, 0, 0,false, false, (others => '0'));
@@ -74,7 +74,7 @@ package body ethernet_receiver_pkg is
             end if;
         end if;
     ------------------------------
-        if ethernet_rx_is_active(enet_rx_ddio) then
+        if self.rx_is_active then
             if self.receiver_ram_address < 2**10-1 then
                 self.receiver_ram_address <= self.receiver_ram_address + 1;
                 if self.frame_detected then

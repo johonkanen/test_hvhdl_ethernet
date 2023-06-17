@@ -31,7 +31,7 @@ def gigabit():
     uart.write_data_to_address(0 , int('1140' , 16))
 
 # uart.write_data_to_address(0                   , int('9140', 16))
-time.sleep(0.5)
+time.sleep(3.5)
 # loopback()
 gigabit()
 time.sleep(0.5)
