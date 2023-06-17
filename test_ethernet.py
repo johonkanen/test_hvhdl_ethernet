@@ -17,7 +17,7 @@ from uart_communication_functions import *
 uart = uart_link(comport                       , 5e6)
 
 def read_ethernet_ram():
-    for i in range(32):
+    for i in range(64):
         # print(i, " : ", hex(uart.request_data_from_address(i)))
         # print("shift register value : " , hex(uart.request_data_from_address(1003)))
         print("shift register value : " , hex(uart.request_data_from_address(10000+i)))
@@ -39,10 +39,12 @@ time.sleep(0.5)
 if reset_arg == "reset":
     reset_counters()
 
+# 00 11 22 33 44 55 3F 7F 54 54 57 30 00 0F 48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21 30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
 
 time.sleep(0.5)
-# from test_sending_raw_frames import *
-# time.sleep(0.5)
+from test_sending_raw_frames import *
+time.sleep(0.5)
 
 print("read data from uart : "                 , hex(uart.request_data_from_address(1000)))
 print("read data from mdio : "                 , hex(uart.request_data_from_address(0)))

@@ -73,6 +73,8 @@ architecture rtl of top is
     signal crc_check_counter : natural range 0 to 2**16-1 := 0;
     
     signal empty_ram : boolean := false;
+    signal crc_counter : integer range 0 to 7 := 0;
+    signal crc_result : std_logic_vector(31 downto 0) := (others => '0');
 
 begin
 
@@ -166,7 +168,7 @@ begin
 
             init_ram_write(write_port);
             rmgii_active <= ethernet_rx_is_active(ethernet_ddio_out);
-            if ethernet_rx_is_active(ethernet_ddio_out) or rmgii_active then
+            if ethernet_rx_is_active(ethernet_ddio_out) then
                 shift_register <= shift_register(7 downto 0) & get_byte(ethernet_ddio_out);
                 if shift_register(7 downto 0) & get_byte(ethernet_ddio_out) = x"aaab" then
                     frame_detected <= true;
@@ -175,23 +177,30 @@ begin
                     end if;
                 end if;
                 if frame_detected then
-                    crc32 <= nextCRC32_D8(shift_register(7 downto 0), crc32);
-                else
-                    crc32 <= (others => '1');
+                    crc32      <= nextCRC32_D8(get_byte(ethernet_ddio_out), crc32);
                 end if;
 
                 if testi2 < 2**10-1 then
                     testi2 <= testi2 + 1;
-                    -- if frame_detected then
-                    write_data_to_ram(write_port, testi2, get_byte(ethernet_ddio_out));
-                    -- else
-                    -- write_data_to_ram(write_port, testi2, get_byte_with_inverted_bit_order(ethernet_ddio_out));
-                    -- write_data_to_ram(write_port, testi2, get_reversed_byte(ethernet_ddio_out));
-                    -- end if;
+                    if frame_detected then
+                        -- write_data_to_ram(write_port, testi2, get_reversed_byte(ethernet_ddio_out));
+                        write_data_to_ram(write_port, testi2, get_byte_with_inverted_bit_order(ethernet_ddio_out));
+                    else
+                        write_data_to_ram(write_port, testi2, get_byte(ethernet_ddio_out));
+                    end if;
                 end if;
+                crc_counter <= 4;
             else
                 frame_detected <= false;
+
+                if crc_counter > 0 then
+                    crc_counter <= crc_counter - 1;
+                    crc32 <= crc32(23 downto 0) & x"ff";
+                    write_data_to_ram(write_port, testi2, crc32(31 downto 24));
+                    testi2 <= testi2 + 1;
+                end if;
             end if;
+
 
             output_shift_register <= output_shift_register(7 downto 0) & output_shift_register(15 downto 8);
 
