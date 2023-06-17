@@ -47,13 +47,15 @@ package body ethernet_receiver_pkg is
         variable enet_byte : std_logic_vector(7 downto 0);
         variable inverted_enet_byte : std_logic_vector(7 downto 0);
     begin
-        enet_byte := self.shift_register(7 downto 0);
-        inverted_enet_byte := self.inverted_byte;
 
         self.rx_is_active <= ethernet_rx_is_active(enet_rx_ddio);
         if ethernet_rx_is_active(enet_rx_ddio) or self.rx_is_active then
             self.shift_register <= self.shift_register(7 downto 0) & get_byte(enet_rx_ddio);
-            self.inverted_byte <= get_byte_with_inverted_bit_order(enet_rx_ddio);
+            self.inverted_byte  <= get_byte_with_inverted_bit_order(enet_rx_ddio);
+
+            enet_byte          := self.shift_register(7 downto 0);
+            inverted_enet_byte := self.inverted_byte;
+
             if self.shift_register = x"aaab" then
                 self.frame_detected <= true;
             end if;
