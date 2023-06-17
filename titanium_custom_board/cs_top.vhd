@@ -17,9 +17,10 @@ package ethernet_receiver_pkg is
         number_of_bytes_received : natural;
         frame_was_received       : boolean;
         rx_is_active : boolean;
+        inverted_byte : std_logic_vector(7 downto 0);
     end record;
 
-    constant init_ethernet_receiver : ethernet_receiver_record := ((others => '0'), (others => '1'), false, 0, 0, 0,false, false);
+    constant init_ethernet_receiver : ethernet_receiver_record := ((others => '0'), (others => '1'), false, 0, 0, 0,false, false, (others => '0'));
 
     procedure create_ethernet_receiver (
         signal self      : inout ethernet_receiver_record;
@@ -43,16 +44,22 @@ package body ethernet_receiver_pkg is
         enet_rx_ddio     : in ethernet_rx_ddio_data_output_group;
         signal ram_write : out ram_write_control_record
     ) is
+        variable enet_byte : std_logic_vector(7 downto 0);
+        variable inverted_enet_byte : std_logic_vector(7 downto 0);
     begin
+        enet_byte := self.shift_register(7 downto 0);
+        inverted_enet_byte := self.inverted_byte;
+
         self.rx_is_active <= ethernet_rx_is_active(enet_rx_ddio);
-        if ethernet_rx_is_active(enet_rx_ddio) then
+        if ethernet_rx_is_active(enet_rx_ddio) or self.rx_is_active then
             self.shift_register <= self.shift_register(7 downto 0) & get_byte(enet_rx_ddio);
-            if self.shift_register(7 downto 0) & get_byte(enet_rx_ddio) = x"aaab" then
+            self.inverted_byte <= get_byte_with_inverted_bit_order(enet_rx_ddio);
+            if self.shift_register = x"aaab" then
                 self.frame_detected <= true;
             end if;
 
             if self.frame_detected then
-                self.crc32 <= nextCRC32_D8(get_byte(enet_rx_ddio), self.crc32);
+                self.crc32 <= nextCRC32_D8(enet_byte, self.crc32);
             end if;
 
             self.crc_counter <= 4;
@@ -71,9 +78,9 @@ package body ethernet_receiver_pkg is
             if self.receiver_ram_address < 2**10-1 then
                 self.receiver_ram_address <= self.receiver_ram_address + 1;
                 if self.frame_detected then
-                    write_data_to_ram(ram_write, self.receiver_ram_address, get_byte_with_inverted_bit_order(enet_rx_ddio));
+                    write_data_to_ram(ram_write, self.receiver_ram_address, inverted_enet_byte);
                 else
-                    write_data_to_ram(ram_write, self.receiver_ram_address, get_byte(enet_rx_ddio));
+                    write_data_to_ram(ram_write, self.receiver_ram_address, enet_byte);
                 end if;
             end if;
         end if;
@@ -228,7 +235,7 @@ begin
                 load_ram_with_offset_to_shift_register(ram_reader, (get_address(bus_from_communications) - 10e3)*2, 2);
             end if;
             if ram_is_buffered_to_shift_register(ram_reader) then
-                write_data_to_address(bus_from_top, 0, to_integer(unsigned(ram_shift_register)));
+                write_data_to_address(bus_from_top, 0, to_integer(unsigned(ram_shift_register(15 downto 0))));
             end if;
 
             
