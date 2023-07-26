@@ -41,7 +41,7 @@ architecture rtl of top is
     signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_to_communications : fpga_interconnect_record := init_fpga_interconnect;
 
-    signal register_in_top : natural range 0 to 2**16-1 := 44252;
+    signal register_in_top : natural range 0 to 2**16-1 := to_integer(unsigned(std_logic_vector'(x"1234")));
     signal mdio_driver : mdio_driver_record := init_mdio_driver_record;
 
     signal request_counter_reset : std_logic := '0';
@@ -56,7 +56,7 @@ architecture rtl of top is
     signal fast_counter : natural range 0 to 2**16-1 := 0;
     signal clock_register : natural range 0 to 2**16-1 := 0;
 
-    signal output_shift_register : std_logic_vector(15 downto 0) := x"acdc";
+    signal output_shift_register : std_logic_vector(15 downto 0) := x"abcd";
     signal ethernet_ddio_out : ethernet_rx_ddio_data_output_group;
 
     signal ram_read_control_port : ram_read_control_group := init_ram_read_port;
