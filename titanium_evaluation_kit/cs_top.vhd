@@ -29,10 +29,9 @@ end entity top;
 
 architecture rtl of top is
 
-    signal bus_from_top : fpga_interconnect_record := init_fpga_interconnect;
-
+    signal bus_from_top            : fpga_interconnect_record := init_fpga_interconnect;
     signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
-    signal bus_to_communications : fpga_interconnect_record := init_fpga_interconnect;
+    signal bus_to_communications   : fpga_interconnect_record := init_fpga_interconnect;
 
     signal register_in_top : natural range 0 to 2**16-1 := 44252;
     signal mdio_driver : mdio_driver_record := init_mdio_driver_record;

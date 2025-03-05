@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efxpt:design_db name="titanium_custom_board" device_def="Ti60F225" location="C:\Users\jaarh\mycodeprojects\test_hvhdl_ethernet\titanium_custom_board" version="2022.2.322.5.7" db_version="20222999" last_change_date="Tue Jun  6 19:06:19 2023" xmlns:efxpt="http://www.efinixinc.com/peri_design_db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/peri_design_db peri_design_db.xsd ">
+<efxpt:design_db name="titanium_custom_board" device_def="Ti60F225" version="2024.1.163.2.15" db_version="20241006" last_change_date="Sat Aug 24 07:27:52 2024" xmlns:efxpt="http://www.efinixinc.com/peri_design_db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/peri_design_db peri_design_db.xsd ">
     <efxpt:device_info>
         <efxpt:iobank_info>
             <efxpt:iobank name="1A" iostd="1.8 V LVCMOS" is_dyn_voltage="false" mode_sel_name="1A_MODE_SEL"/>
@@ -148,13 +148,13 @@
                 <efxpt:pin name="" type_name="SHIFT" is_bus="true"/>
                 <efxpt:pin name="" type_name="SHIFT_SEL" is_bus="true"/>
             </efxpt:gen_pin>
-            <efxpt:comp_output_clock name="pll_inst1_CLKOUT0" number="0" out_divider="24" is_dyn_phase="false" phase_setting="0">
+            <efxpt:comp_output_clock name="pll_inst1_CLKOUT0" number="0" out_divider="24" is_dyn_phase="false" phase_setting="0" is_inverted="false">
                 <efxpt:gen_pin/>
             </efxpt:comp_output_clock>
-            <efxpt:comp_output_clock name="clock_120mhz" number="1" out_divider="20" is_dyn_phase="false" phase_setting="0">
+            <efxpt:comp_output_clock name="clock_120mhz" number="1" out_divider="20" is_dyn_phase="false" phase_setting="0" is_inverted="false">
                 <efxpt:gen_pin/>
             </efxpt:comp_output_clock>
-            <efxpt:comp_prop is_outclk_inverted="false"/>
+            <efxpt:comp_prop/>
         </efxpt:pll>
         <efxpt:pll name="enet_pll" pll_def="PLL_TL0" ref_clock_name="" ref_clock_freq="125.0000" multiplier="1" pre_divider="1" post_divider="2" reset_name="" locked_name="" is_ipfrz="false" is_bypass_lock="true">
             <efxpt:adv_prop ref_clock_mode="external" ref_clock1_name="" ext_ref_clock_id="4" clksel_name="" feedback_clock_name="outclock" feedback_mode="local"/>
@@ -164,13 +164,13 @@
                 <efxpt:pin name="" type_name="SHIFT" is_bus="true"/>
                 <efxpt:pin name="" type_name="SHIFT_SEL" is_bus="true"/>
             </efxpt:gen_pin>
-            <efxpt:comp_output_clock name="outclock" number="0" out_divider="12" is_dyn_phase="false" phase_setting="0">
+            <efxpt:comp_output_clock name="outclock" number="0" out_divider="12" is_dyn_phase="false" phase_setting="0" is_inverted="false">
                 <efxpt:gen_pin/>
             </efxpt:comp_output_clock>
-            <efxpt:comp_output_clock name="rgmii_rx_pll_clock" number="1" out_divider="12" is_dyn_phase="false" phase_setting="7">
+            <efxpt:comp_output_clock name="rgmii_rx_pll_clock" number="1" out_divider="12" is_dyn_phase="false" phase_setting="7" is_inverted="false">
                 <efxpt:gen_pin/>
             </efxpt:comp_output_clock>
-            <efxpt:comp_prop is_outclk_inverted="false"/>
+            <efxpt:comp_prop/>
         </efxpt:pll>
         <efxpt:pll name="enet_tx_pll" pll_def="PLL_BR0" ref_clock_name="rgmii_rx_pll_clock" ref_clock_freq="125.0000" multiplier="1" pre_divider="1" post_divider="2" reset_name="" locked_name="" is_ipfrz="false" is_bypass_lock="true">
             <efxpt:adv_prop ref_clock_mode="core" ref_clock1_name="" ext_ref_clock_id="2" clksel_name="" feedback_clock_name="pll_inst3_CLKOUT0" feedback_mode="local"/>
@@ -180,13 +180,13 @@
                 <efxpt:pin name="" type_name="SHIFT" is_bus="true"/>
                 <efxpt:pin name="" type_name="SHIFT_SEL" is_bus="true"/>
             </efxpt:gen_pin>
-            <efxpt:comp_output_clock name="pll_inst3_CLKOUT0" number="0" out_divider="22" is_dyn_phase="false" phase_setting="0">
+            <efxpt:comp_output_clock name="pll_inst3_CLKOUT0" number="0" out_divider="22" is_dyn_phase="false" phase_setting="0" is_inverted="true">
                 <efxpt:gen_pin/>
             </efxpt:comp_output_clock>
-            <efxpt:comp_output_clock name="enet_tx_clock" number="1" out_divider="22" is_dyn_phase="false" phase_setting="7">
+            <efxpt:comp_output_clock name="enet_tx_clock" number="1" out_divider="22" is_dyn_phase="false" phase_setting="7" is_inverted="true">
                 <efxpt:gen_pin/>
             </efxpt:comp_output_clock>
-            <efxpt:comp_prop is_outclk_inverted="true"/>
+            <efxpt:comp_prop/>
         </efxpt:pll>
     </efxpt:pll_info>
     <efxpt:osc_info/>

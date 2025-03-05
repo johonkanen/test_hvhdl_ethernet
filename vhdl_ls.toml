@@ -1,4 +1,3 @@
-
 [libraries.hvhdl_gigabit_ethernet]
 files = [ 
 "./source/hVHDL_gigabit_ethernet/mdio_driver/mdio_three_state_io_driver/mdio_three_state_io_driver_pkg.vhd",
