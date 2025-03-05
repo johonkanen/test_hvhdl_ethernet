@@ -3,15 +3,6 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-    use work.fpga_interconnect_pkg.all;
-    use work.mdio_driver_internal_pkg.all;
-
-    use work.ethernet_rx_ddio_pkg.all;
-
-    use work.ethernet_frame_ram_read_pkg.all;
-    use work.ethernet_frame_ram_write_pkg.all;
-    use work.ethernet_frame_receiver_pkg.all;
-
 entity top is
     port (
         clock_120mhz : in std_logic;
@@ -36,6 +27,15 @@ end entity top;
 
 architecture rtl of top is
 
+    use work.fpga_interconnect_pkg.all;
+    use work.mdio_driver_internal_pkg.all;
+
+    use work.ethernet_rx_ddio_pkg.all;
+
+    use work.ethernet_frame_ram_read_pkg.all;
+    use work.ethernet_frame_ram_write_pkg.all;
+    use work.ethernet_frame_receiver_pkg.all;
+    
     signal bus_from_top : fpga_interconnect_record := init_fpga_interconnect;
 
     signal bus_from_communications : fpga_interconnect_record := init_fpga_interconnect;
@@ -44,27 +44,27 @@ architecture rtl of top is
     signal register_in_top : natural range 0 to 2**16-1 := to_integer(unsigned(std_logic_vector'(x"1234")));
     signal mdio_driver : mdio_driver_record := init_mdio_driver_record;
 
-    signal request_counter_reset : std_logic := '0';
-    signal request_another_counter_reset : std_logic := '0';
-    signal clock_counter : natural := 30000;
-    signal testi : natural range 0 to 2**16-1 := 0;
+    signal request_counter_reset         : std_logic                  := '0';
+    signal request_another_counter_reset : std_logic                  := '0';
+    signal clock_counter                 : natural                    := 30000;
+    signal testi                         : natural range 0 to 2**16-1 := 0;
     -- rgmii clock data
-    signal rmgii_active : boolean := false;
-    signal testi3 : natural range 0 to 2**16-1 := 0;
-    signal toggle : std_logic_vector(2 downto 0) := (others => '0');
+    signal rmgii_active    : boolean                      := false;
+    signal testi3          : natural range 0 to 2**16-1   := 0;
+    signal toggle          : std_logic_vector(2 downto 0) := (others => '0');
     signal toggle_counters : std_logic_vector(2 downto 0) := (others => '0');
-    signal fast_counter : natural range 0 to 2**16-1 := 0;
-    signal clock_register : natural range 0 to 2**16-1 := 0;
+    signal fast_counter    : natural range 0 to 2**16-1   := 0;
+    signal clock_register  : natural range 0 to 2**16-1   := 0;
 
     signal output_shift_register : std_logic_vector(15 downto 0) := x"abcd";
-    signal ethernet_ddio_out : ethernet_rx_ddio_data_output_group;
+    signal ethernet_ddio_out     : ethernet_rx_ddio_data_output_group;
 
     signal ram_read_control_port : ram_read_control_group := init_ram_read_port;
-    signal ram_read_out_port : ram_read_output_group := ram_read_output_init;
+    signal ram_read_out_port     : ram_read_output_group  := ram_read_output_init;
 
     signal write_port : ram_write_control_record := init_ram_write_control;
 
-    signal ram_reader : ram_reader_record := init_ram_reader;
+    signal ram_reader         : ram_reader_record             := init_ram_reader;
     signal ram_shift_register : std_logic_vector(31 downto 0) := (others => '0');
 
     signal crc_check_counter : natural range 0 to 2**16-1 := 0;
@@ -196,10 +196,16 @@ begin
     end process test_rgmii_clock;	
 
     u_rxddio : entity work.ethernet_rx_ddio
-    port map(rgmii_rx_pll_clock, (rgmii_rx_and_ctl_HI, rgmii_rx_and_ctl_LO), ethernet_ddio_out);
+    port map(rgmii_rx_pll_clock
+        , (rgmii_rx_and_ctl_HI, rgmii_rx_and_ctl_LO)
+        , ethernet_ddio_out);
 
     u_dpram : entity work.dpram
-    port map(clock_120mhz, ram_read_control_port,ram_read_out_port, rgmii_rx_pll_clock, write_port);
+    port map(clock_120mhz
+         , ram_read_control_port
+         , ram_read_out_port
+         , rgmii_rx_pll_clock
+         , write_port);
 
 ------------------------------------------------------------------------
     create_bus : process(clock_120mhz)
@@ -210,11 +216,15 @@ begin
     end process create_bus;	
 
 ------------------------------------------------------------------------
-    u_communications : entity work.fpga_communications
-    port map(clock => clock_120mhz,
-             uart_rx => uart_rx,
-             uart_tx => uart_tx,
-             bus_to_communications   => bus_to_communications,
-             bus_from_communications => bus_from_communications);
+    u_fpga_communications : entity work.fpga_communications
+    generic map(fpga_interconnect_pkg => work.fpga_interconnect_pkg)
+        port map(
+            clock                    => clock_120mhz
+            ,uart_rx                 => uart_rx
+            ,uart_tx                 => uart_tx
+            ,bus_to_communications   => bus_to_communications
+            ,bus_from_communications => bus_from_communications
+        );
+------------------------------------------------------------------------
 
 end rtl;

@@ -141,11 +141,14 @@ begin
     end process create_bus;	
 
 ------------------------------------------------------------------------
-    u_communications : entity work.fpga_communications
-    port map(clock => clock_120mhz,
-             uart_rx => uart_rx,
-             uart_tx => uart_tx,
-             bus_to_communications   => bus_to_communications,
-             bus_from_communications => bus_from_communications);
+    u_fpga_communications : entity work.fpga_communications
+    generic map(fpga_interconnect_pkg => work.fpga_interconnect_pkg)
+        port map(
+            clock                    => main_clock
+            ,uart_rx                 => uart_rx
+            ,uart_tx                 => uart_tx
+            ,bus_to_communications   => bus_to_communications
+            ,bus_from_communications => bus_from_communications
+        );
 
 end rtl;
